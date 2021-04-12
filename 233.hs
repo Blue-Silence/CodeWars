@@ -1,0 +1,1 @@
+(lastNum len (   (lastDigitLen len (lastDigitLen len a n) 2)   *   (lastDigitLen len a (b-2*n))     )   )

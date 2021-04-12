@@ -61,11 +61,9 @@ numLst="0123456789"
 charLst="_"++['a','b'..'z']++['A','B'..'Z']
 opLst="~!@#$%^&*_+-=,./;'[]><"
 
-lispPretty :: String -> Maybe String
-lispPretty s = undefined
 
 lispEval :: String -> Maybe AST
-lispEval s = if (head s)=='(' then eval (drop 1 s) [[]] else Nothing
+lispEval s =let val=eval (('(':s)++")") [[]] in if val==Just Nul then Nothing else val
 
 
 evalH ::[AST]->Maybe AST
@@ -120,3 +118,28 @@ pick :: AST->[(String,([AST]->Maybe AST))]->([AST]->Maybe AST)
 pick (Sym x) []=(\_->Nothing )
 pick (Sym x) ((lab,f):fs)=if x==lab then f else pick (Sym x) fs
 pick _ _=(\_->Nothing )
+
+
+removeTwoSP (x:[])=if x==' ' then [] else [x]
+removeTwoSP (x:y:xs)=if x==' '&& y==' ' then removeTwoSP (y:xs) else x:(removeTwoSP (y:xs))
+
+removeFP (x:[])=[x]
+removeFP (x:xs)=if not (x=='(')
+                then x:(removeFP xs)
+                else if (head xs)==' '
+                        then removeFP (x:(drop 1 xs))
+                        else  (x:(removeFP xs))
+
+
+removeFP []=[]
+removeSP (x:y:[])=if x==' ' then [y] else [x,y]
+removeSP  (x:y:xs)=if and [y==')',x==' '] then removeSP (y:xs) else x:(removeSP (y:xs))
+removeSP (x:[])=[x]
+
+removeHead (x:xs)=if x==' ' then xs else x:xs
+
+
+
+lispPretty :: String -> Maybe String
+lispPretty s = Just ((removeSP . removeHead .removeFP . removeTwoSP) s)
+
